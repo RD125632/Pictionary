@@ -24,13 +24,23 @@ namespace Pictionary
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         public string username;
         public List<Tuple<string, string>> chatMessages;
+        public TcpConnection _connection;
 
         public MainForm()
         { 
             InitializeComponent();
             chatMessages = new List<Tuple<string, string>>();
+
+            _connection = new TcpConnection();
         }
 
+        public void SendUsername()
+        {
+            _connection.SendString("0|" + username + "|");   
+        }
+
+
+       
         private void MainForm_Load(object sender, EventArgs e)
         {
             login2.Visible = true;
@@ -60,5 +70,27 @@ namespace Pictionary
             drawUC2.Visible = true;                
         }
 
+        public void setWord(string word)
+        {
+            drawUC2.setWord(word);
+        }
+
+        public void setImage(byte[] bytesArray)
+        {
+            drawUC2.setImage(bytesArray);
+        }
+
+        public void SendImage(Bitmap bmp)
+        {
+            byte[] byteArray = new byte[0];
+            using (MemoryStream stream = new MemoryStream())
+            {
+                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+                stream.Close();
+
+                byteArray = stream.ToArray();
+            }
+            _connection.SendImage("4|", byteArray, "|");
+        }
     }
 }

@@ -21,9 +21,6 @@ namespace Server
                 Console.WriteLine("Waiting for clients..");
                 AppGlobal.Instance.AddUser(new Client(serverSocket.AcceptTcpClient()));
             }
-
-            serverSocket.Stop();
-            Console.WriteLine("Server afsluiten");
         }
     }
 }

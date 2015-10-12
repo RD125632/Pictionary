@@ -21,7 +21,18 @@ namespace Pictionary.UserControls
 
         public DrawUC()
         {
-            InitializeComponent();       
+            InitializeComponent();
+        }
+
+        public void setWord(string word)
+        {
+            drawLabel.Text = word;
+        }
+        public void setImage(byte[] bytesArray)
+        {
+            ImageConverter ic = new ImageConverter();
+            Image img = (Image)ic.ConvertFrom(bytesArray);
+            this.paintPanel.BackgroundImage = img;
         }
 
 
@@ -71,6 +82,8 @@ namespace Pictionary.UserControls
 
             lastPoint.X = e.X;
             lastPoint.Y = e.Y;
+
+            ((MainForm) this.Parent).SendImage(new Bitmap(1055, 669, g));
         }
 
         private void clearBTN_Click(object sender, EventArgs e)

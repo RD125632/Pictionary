@@ -16,7 +16,6 @@ namespace Pictionary.UserControls
         {
             InitializeComponent();
             this.ActiveControl = textBox1;
-            
         }
 
         private void submitNameBTN_Click(object sender, EventArgs e)
@@ -30,6 +29,7 @@ namespace Pictionary.UserControls
             {
                 MainForm parentForm = (MainForm)this.Parent;
                 parentForm.username = textBox1.Text;
+                parentForm.SendUsername();
                 parentForm.setDrawUC();
             }
         }

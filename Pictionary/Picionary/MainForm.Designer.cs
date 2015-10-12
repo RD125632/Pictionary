@@ -117,9 +117,7 @@ namespace Pictionary
         #endregion
         private System.Windows.Forms.Panel menuBar;
         private System.Windows.Forms.Button closeBTN;
-        private UserControls.Login login1;
         private System.Windows.Forms.PictureBox pictureBox1;
-        private UserControls.DrawUC drawUC1;
         private UserControls.Login login2;
         private UserControls.DrawUC drawUC2;
     }

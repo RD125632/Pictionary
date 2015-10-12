@@ -44,10 +44,13 @@ namespace Server
                     {
                         case "0":   //Set user name
                             name = response_parts[1];
-                            break;
 
-                        case "1":   //Send Word
-                            sendString("1|" + _global.GetWord() + "|");
+                            if (_global.GetClients().Count() < 2)
+                            {
+                                sendString("1|" + _global.GetWord() + "|");
+                                isActive = true;
+                            }
+
                             break;
                             
                         case "2":   //Recieve Chat
