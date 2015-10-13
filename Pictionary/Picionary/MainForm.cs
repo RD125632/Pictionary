@@ -23,23 +23,26 @@ namespace Pictionary
         [DllImport("User32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         public string username;
-        public List<Tuple<string, string>> chatMessages;
+        public List<Tuple<string, string>> chatMessagesLocal, chatMessagesRecieved;
         public TcpConnection _connection;
 
         public MainForm()
         { 
             InitializeComponent();
-            chatMessages = new List<Tuple<string, string>>();
+            chatMessagesLocal = new List<Tuple<string, string>>();
 
-            _connection = new TcpConnection();
+            _connection = new TcpConnection(this);
         }
 
         public void SendUsername()
         {
-            _connection.SendString("0|" + username + "|");   
+            _connection.SendString("1|" + username + "|");   
         }
 
-
+        public void repopulateChat()
+        {
+            drawUC2.newChat();
+        }
        
         private void MainForm_Load(object sender, EventArgs e)
         {
@@ -90,7 +93,7 @@ namespace Pictionary
 
                 byteArray = stream.ToArray();
             }
-            _connection.SendImage("4|", byteArray, "|");
+            _connection.SendImage("0|", byteArray, "|");
         }
     }
 }

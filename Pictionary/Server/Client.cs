@@ -36,43 +36,47 @@ namespace Server
             {
                 byte[] bytesFrom = new byte[(int)client.ReceiveBufferSize];
                 networkStream.Read(bytesFrom, 0, (int)client.ReceiveBufferSize);
-                String response = Encoding.ASCII.GetString(bytesFrom);
-                String[] response_parts = response.Split('|');
-                if (response_parts.Length > 0)
+
+                if (bytesFrom[0] == 48)
                 {
-                    switch (response_parts[0])
+                    foreach (Client c in _global.GetClients())
                     {
-                        case "0":   //Set user name
-                            name = response_parts[1];
+                        if (!c.Equals(this))
+                        {
+                            networkStream.Write(bytesFrom, 0, bytesFrom.Length);
+                            networkStream.Flush();
+                        }
+                    }
+                }
+                else
+                {
+                    String response = Encoding.ASCII.GetString(bytesFrom);
+                    String[] response_parts = response.Split('|');
+                    if (response_parts.Length > 0)
+                    {
+                        switch (response_parts[0])
+                        {
+                            case "1":   //Set user name
+                                name = response_parts[1];
+                                break;
+                            case "2":   //Recieve Chat
+                                _global.AddChatMessage(name, response_parts[1]);
 
-                            if (_global.GetClients().Count() < 2)
-                            {
-                                sendString("1|" + _global.GetWord() + "|");
-                                isActive = true;
-                            }
-
-                            break;
-                            
-                        case "2":   //Recieve Chat
-                            _global.AddChatMessage(name, response_parts[1]);
-                            break;
-                        case "3":   //Send Chat
-                            sendString("3|" + JsonConverter.GetChatInJson(_global) + "|"); 
-                            break;
-                        case "4" : //Recieve Image
-                            
-                            foreach(Client c in _global.GetClients())
-                            {
-                                if (!c.Equals(this))
+                                foreach(Client c in _global.GetClients())
                                 {
-                                    using (MemoryStream ms = new MemoryStream())
-                                    {
-                                        sendString("4|" + response_parts[1] + "|");
-                                    }
+                                    sendString("2|" + JsonConverter.GetChatInJson(_global) + "|");
                                 }
-                            }
+                                
+                                break;
+                            case "4":   //Ask Word
+                                if(!_global.GetClients().Any(c => c.isActive == true))
+                                {
+                                    sendString("4|" + _global.GetWord() + "|");
+                                    isActive = true;
+                                }
 
-                            break;
+                                break;
+                        }
                     }
                 }
             }

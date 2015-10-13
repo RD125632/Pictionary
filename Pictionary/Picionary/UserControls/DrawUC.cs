@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Reflection;
-using System.IO;
+using System.Linq;
 
 namespace Pictionary.UserControls
 {
@@ -17,22 +11,40 @@ namespace Pictionary.UserControls
         private Pen myPen;
         private Graphics g;
         private bool isDrawing = false;
-        private Point lastPoint = new Point(-1, -1); 
+        private Point lastPoint = new Point(-1, -1);
+        private List<Tuple<Point, Point>> pixelPainted;
 
         public DrawUC()
         {
             InitializeComponent();
+            pixelPainted = new List<Tuple<Point, Point>>();
         }
 
         public void setWord(string word)
         {
             drawLabel.Text = word;
         }
+
+        public void newChat()
+        {
+            MainForm parentForm = (MainForm)this.Parent;
+
+            int difference = parentForm.chatMessagesRecieved.Count - parentForm.chatMessagesLocal.Count;
+            while(difference > 0)
+            {
+
+                chatBox.AppendText(parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item1 + ": " 
+                                                                           + parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item2);
+                chatBox.AppendText(Environment.NewLine);
+                difference--;
+            }
+
+            parentForm.chatMessagesLocal = parentForm.chatMessagesRecieved;
+        }
+
         public void setImage(byte[] bytesArray)
         {
-            ImageConverter ic = new ImageConverter();
-            Image img = (Image)ic.ConvertFrom(bytesArray);
-            this.paintPanel.BackgroundImage = img;
+
         }
 
 
@@ -65,11 +77,14 @@ namespace Pictionary.UserControls
 
         private void paintPanel_MouseDown(object sender, MouseEventArgs e)
         {
-            isDrawing = true;
-
-            if (lastPoint.X == -1)
+            if (((MainForm)this.Parent)._connection.isActiveClient == true)
             {
-                lastPoint = new Point(e.X, e.Y);
+                isDrawing = true;
+
+                if (lastPoint.X == -1)
+                {
+                    lastPoint = new Point(e.X, e.Y);
+                }
             }
         }
 
@@ -77,13 +92,12 @@ namespace Pictionary.UserControls
         {
             if(isDrawing == true)
             {
+                pixelPainted.Add(new Tuple<Point,Point>(new Point(lastPoint.X, lastPoint.Y), new Point(e.X, e.Y)));
                 g.DrawLine(myPen, lastPoint.X, lastPoint.Y, e.X, e.Y);
             }
 
             lastPoint.X = e.X;
-            lastPoint.Y = e.Y;
-
-            ((MainForm) this.Parent).SendImage(new Bitmap(1055, 669, g));
+            lastPoint.Y = e.Y; 
         }
 
         private void clearBTN_Click(object sender, EventArgs e)
@@ -91,25 +105,27 @@ namespace Pictionary.UserControls
             g.Clear(Color.White);
         }
 
-        private void sendText_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
         private void sendText_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
                 MainForm parentForm = (MainForm)this.Parent;
-                chatBox.AppendText(parentForm.username + ": " +  sendText.Text);
-                chatBox.AppendText(Environment.NewLine);
-
-                parentForm.chatMessages.Add(new Tuple<string, string>(parentForm.username, sendText.Text));
+                parentForm._connection.SendString("2|" + sendText.Text + "|");
 
                 //Done
                 sendText.Text = "";
                 e.Handled = true;
             }
+        }
+
+        private void submitImageBTN_Click(object sender, EventArgs e)
+        {
+            ((MainForm)this.Parent).SendImage(new Bitmap(792, 544, g));
+        }
+
+        private void askWordBTN_Click(object sender, EventArgs e)
+        {
+            ((MainForm)this.Parent)._connection.SendString("4|");
         }
     }
 }
