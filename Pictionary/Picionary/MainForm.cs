@@ -41,7 +41,7 @@ namespace Pictionary
 
         public void repopulateChat()
         {
-            drawUC2.newChat();
+            drawUC2.newChat(this);
         }
        
         private void MainForm_Load(object sender, EventArgs e)
@@ -81,6 +81,11 @@ namespace Pictionary
         public void setImage(byte[] bytesArray)
         {
             drawUC2.setImage(bytesArray);
+        }
+
+        public void setConnectLBL()
+        {
+            login2.setConnectLBL();
         }
 
         public void SendImage(Bitmap bmp)

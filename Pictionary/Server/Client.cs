@@ -64,7 +64,7 @@ namespace Server
 
                                 foreach(Client c in _global.GetClients())
                                 {
-                                    sendString("2|" + JsonConverter.GetChatInJson(_global) + "|");
+                                    c.sendString("2|" + JsonConverter.GetChatInJson(_global) + "|");
                                 }
                                 
                                 break;

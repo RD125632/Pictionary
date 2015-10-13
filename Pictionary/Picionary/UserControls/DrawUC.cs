@@ -25,14 +25,12 @@ namespace Pictionary.UserControls
             drawLabel.Text = word;
         }
 
-        public void newChat()
+        public void newChat(MainForm parentForm)
         {
-            MainForm parentForm = (MainForm)this.Parent;
-
             int difference = parentForm.chatMessagesRecieved.Count - parentForm.chatMessagesLocal.Count;
-            while(difference > 0)
-            {
 
+            while (difference > 0)
+            {
                 chatBox.AppendText(parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item1 + ": " 
                                                                            + parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item2);
                 chatBox.AppendText(Environment.NewLine);

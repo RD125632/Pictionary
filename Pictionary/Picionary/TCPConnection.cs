@@ -40,19 +40,24 @@ namespace Pictionary
         {
             try
             {
-                client.Connect("198.168.178.17", 1288);
+                client.Connect("127.0.0.1", 1288);
 
                 // create streams
                 serverStream = client.GetStream();
                 receiveThread = new Thread(receive);
                 receiveThread.Start();
                 isConnectedFlag = true;
+
+                activeForm.setConnectLBL();
+
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
                 Thread.Sleep(1000);
                 isConnectedFlag = false;
+
+                
             }
         }
 

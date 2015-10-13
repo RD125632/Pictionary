@@ -18,12 +18,21 @@ namespace Pictionary.UserControls
             this.ActiveControl = textBox1;
         }
 
+        public void setConnectLBL()
+        {
+            label2.Text = "";
+        }
+
         private void submitNameBTN_Click(object sender, EventArgs e)
         {
             if (!System.Text.RegularExpressions.Regex.IsMatch(textBox1.Text, "^[a-zA-Z]"))
             {
                 MessageBox.Show("This textbox accepts only alphabetical characters");
-                textBox1.Text.Remove(textBox1.Text.Length - 1);
+
+                if (textBox1.Text != "")
+                {
+                    textBox1.Text.Remove(textBox1.Text.Length - 1);
+                }
             }
             else
             {
