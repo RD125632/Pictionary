@@ -15,8 +15,7 @@ namespace Server
         NetworkStream networkStream;
         private readonly AppGlobal _global;
         private string name;
-        private bool isActive;
-
+       
 
         public Client(TcpClient socket)
         {
@@ -28,7 +27,6 @@ namespace Server
             t.Start();
 
             name = "";
-            isActive = false;
         }
 
         public void recieve()
@@ -59,38 +57,59 @@ namespace Server
                         {
                             case "1":   //Set user name
                                 name = response_parts[1];
+
+                                if(_global.GetClients().Count > 1)
+                                {
+                                    askWord();
+                                }
+
+                                broadcastString("2|" + "Server" + "|" + response_parts[1] + " joined" + "|");
                                 break;
                             case "2":   //Recieve Chat
-                                _global.AddChatMessage(name, response_parts[1]);
-
-                                foreach(Client c in _global.GetClients())
+                                if (response_parts[1].ToLower() == _global.supersecretword)
                                 {
-                                    c.sendString("2|" + JsonConverter.GetChatInJson(_global) + "|");
+                                    broadcastString("3|" + name + "|" + response_parts[1] + "|");
                                 }
-                                
+                                else
+                                {
+                                    broadcastString("2|" + name + "|" + response_parts[1] + "|");
+                                }
                                 break;
                             case "4":   //Ask Word
-                                if(!_global.GetClients().Any(c => c.isActive == true))
-                                {
-                                    sendString("4|" + _global.GetWord() + "|");
-                                    isActive = true;
-                                }
-
+                                askWord();
+                                break;
+                            case "6":   //Clear Image
+                                broadcastString("6|");
                                 break;
                             case "9":   //ImagePoints
                                 _global.pixelPoints.Add(JsonConvert.DeserializeObject<ImagePoint>(response_parts[1]));
-
-                                foreach (Client c in _global.GetClients())
-                                {
-                                    //c.sendString("9|" + response_parts[1] + 
-                                    c.sendString("9|" + JsonConvert.SerializeObject(_global.pixelPoints) + "|");
-                                }
-
+                                broadcastString("9|" + response_parts[1] + "|");
+                                break;
+                            case "10":   //Reset Game
+                                broadcastString("10|");
+                                Thread.Sleep(500);
+                                askWord();
                                 break;
                         }
                     }
                 }
             }
+        }
+
+        private void askWord()
+        {
+            int index = new Random().Next(_global.GetClients().Count);
+            _global.supersecretword = _global.GetWord();
+            _global.GetClients().ElementAt(index).sendString("4|" + _global.supersecretword + "|");
+        }
+
+        public void broadcastString(string s)
+        {
+            foreach (Client c in _global.GetClients())
+            {
+                c.sendString(s);
+            }
+
         }
 
         public void sendString(string s)

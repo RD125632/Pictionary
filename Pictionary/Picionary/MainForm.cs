@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
+using Pictionary.UserControls;
 
 namespace Pictionary
 {
@@ -24,7 +18,7 @@ namespace Pictionary
         [DllImport("User32.dll")]
         public static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
         public string username;
-        public List<Tuple<string, string>> chatMessagesLocal, chatMessagesRecieved;
+        public List<Tuple<string, string>> chatMessagesLocal;
         public TcpConnection _connection;
 
         public MainForm()
@@ -40,11 +34,18 @@ namespace Pictionary
             _connection.SendString("1|" + username + "|");   
         }
 
+        public void setAnswer()
+        {
+            new WinnerForm((MainForm)this.Parent, chatMessagesLocal.Last()).Show();
+            repopulateChat();
+        }
+
         public void repopulateChat()
         {
             drawUC2.newChat();
         }
        
+
         private void MainForm_Load(object sender, EventArgs e)
         {
             login2.Visible = true;
@@ -85,6 +86,11 @@ namespace Pictionary
             drawUC2.setImage();
         }
 
+        public void clearImage()
+        {
+            drawUC2.clearImage();
+        }
+
         public void setConnectLBL()
         {
             login2.setConnectLBL();
@@ -98,7 +104,8 @@ namespace Pictionary
 
         public void addToImage(ImagePoint point)
         {
-           drawUC2.pixelPainted.Add(point); 
+            drawUC2.pixelPainted.Add(point);
+            drawUC2.setImage();
         }
     }
 }

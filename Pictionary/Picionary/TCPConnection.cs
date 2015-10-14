@@ -22,7 +22,6 @@ namespace Pictionary
         private Thread receiveThread;
         public bool isActiveClient = false;
         private MainForm activeForm;
-        private int chunks = 0;
 
         public TcpConnection(MainForm form)
         {
@@ -78,86 +77,61 @@ namespace Pictionary
                 byte[] bytesFrom = new byte[(int) client.ReceiveBufferSize];
                 serverStream.Read(bytesFrom, 0, (int) client.ReceiveBufferSize);
 
+                string response = Encoding.ASCII.GetString(bytesFrom);
+                string[] response_parts = response.Split('|');
 
-                if (bytesFrom[0] == 48)
+                if (response_parts.Length > 0)
                 {
-                    /*if (chunks < 27)
-                    {
-                        Buffer.BlockCopy(bytesFrom, 2, newImage, (chunks * 65533), ((chunks * 65533) < newImage.Length) ? 65533 : (newImage.Length - ((chunks - 1) * 65533)));
-                        chunks++;
-                    }
-                    else
-                    {
-                        activeForm.Invoke((MethodInvoker)delegate ()
-                        {
-                            activeForm.setImage(newImage);
-                        });
-                        chunks = 0;
-                    }*/
-                }
-                else
-                {
-                    string response = Encoding.ASCII.GetString(bytesFrom);
-                    string[] response_parts = response.Split('|');
-                    if (response_parts.Length > 0)
-                    {
                         switch (response_parts[0])
                         {
                             case "2": //Receive Chat
                                 activeForm.Invoke((MethodInvoker)delegate ()
                                 {
-                                    activeForm.chatMessagesRecieved = JsonConvert.DeserializeObject<List<Tuple<string, string>>>(response_parts[1]);
+                                    activeForm.chatMessagesLocal.Add(new Tuple<string, string>(response_parts[1], response_parts[2]));
                                     activeForm.repopulateChat();
+                                });
+                                break;
+                            case "3": //Last word was correct
+                                activeForm.Invoke((MethodInvoker)delegate ()
+                                {
+                                    activeForm.chatMessagesLocal.Add(new Tuple<string, string>(response_parts[1], response_parts[2]));
+                                    activeForm.setAnswer();
                                 });
                                 break;
                             case "4": //Receive the super secret word
                                 isActiveClient = true;
 
-                                activeForm.Invoke((MethodInvoker)delegate ()
+                               activeForm.Invoke((MethodInvoker)delegate ()
                                {
                                    activeForm.setWord(response_parts[1]);
                                });
                             break;
-                            case "9": //Receive Image Point
-                                isActiveClient = true;
+                            case "6": //Recieve Clear image command
 
                                 activeForm.Invoke((MethodInvoker)delegate ()
                                 {
-                                    //activeForm.addToImage(JsonConvert.DeserializeObject<ImagePoint>(response_parts[1]));
-                                    activeForm.setImage(JsonConvert.DeserializeObject<List<ImagePoint>>(response_parts[1]));
+                                    activeForm.clearImage();
+                                });
+                            break;
+                        case "9": //Receive Image Point
+
+                                activeForm.Invoke((MethodInvoker)delegate ()
+                                {
+                                    activeForm.addToImage(JsonConvert.DeserializeObject<ImagePoint>(response_parts[1]));
                                 });
                                 break;
-                        }
+                        case "10": //Receive Image Point
+
+                            activeForm.Invoke((MethodInvoker)delegate ()
+                            {
+                                isActiveClient = false;
+                                activeForm.clearImage();
+                                
+                            });
+                            break;
                     }
                 }
             } 
-        }
-
-        public void SendImage(string s, byte[] img ,string b)
-        {
-            // Image is 1723446 
-            // Buffersize is 65536
-            // 3 Bytes are needed for the IDs
-
-            byte[] a1 = Encoding.ASCII.GetBytes(s);
-            byte[] a3 = Encoding.ASCII.GetBytes(b);
-            int lastIMGBYTE = 0;
-            byte[] chunkPackage = new byte[65536];
-            chunks = 0;
-
-            while (chunks < 27)
-            {
-                Buffer.BlockCopy(a1, 0, chunkPackage, 0, a1.Length);
-                Buffer.BlockCopy(img, lastIMGBYTE, chunkPackage, a1.Length, ((img.Length - lastIMGBYTE) > 65533) ? 65533 : (img.Length - lastIMGBYTE));
-                Buffer.BlockCopy(a3, 0, chunkPackage, a1.Length + 65533, a3.Length);
-
-                serverStream.Write(chunkPackage, 0, chunkPackage.Length);
-                serverStream.Flush();
-                lastIMGBYTE += 65536;
-                chunks++;
-                Array.Clear(chunkPackage, 0, chunkPackage.Length);
-            }
-            
         }
 
         public void SendString(string s)

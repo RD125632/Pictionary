@@ -27,27 +27,22 @@ namespace Pictionary.UserControls
             drawLabel.Text = word;
         }
 
+        public string GetWord()
+        {
+            return drawLabel.Text;
+        }
+
+
         public void newChat()
         {
-            int difference = parentForm.chatMessagesRecieved.Count - parentForm.chatMessagesLocal.Count;
-
-            while (difference > 0)
-            {
-                chatBox.AppendText(parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item1 + ": " 
-                                                                           + parentForm.chatMessagesRecieved.ElementAt(parentForm.chatMessagesRecieved.Count - difference).Item2);
+                chatBox.AppendText(parentForm.chatMessagesLocal.Last().Item1 + ": " + parentForm.chatMessagesLocal.Last().Item2);
                 chatBox.AppendText(Environment.NewLine);
-                difference--;
-            }
-
-            parentForm.chatMessagesLocal = parentForm.chatMessagesRecieved;
         }
 
         public void setImage()
         {
-            foreach (ImagePoint point in pixelPainted)
-            {
-                g.DrawLine(myPen, point.p1, point.p2);
-            }
+            myPen.Color = pixelPainted.Last().color;
+            g.DrawLine(myPen, pixelPainted.Last().p1, pixelPainted.Last().p2);
         }
         
 
@@ -96,9 +91,7 @@ namespace Pictionary.UserControls
             if(isDrawing == true)
             {
                 ImagePoint newPoint = new ImagePoint(new Point(lastPoint.X, lastPoint.Y), new Point(e.X, e.Y), myPen.Color);
-                pixelPainted.Add(newPoint);
                 parentForm.SendImage(newPoint);
-                g.DrawLine(myPen, lastPoint.X, lastPoint.Y, e.X, e.Y);
             }
 
             lastPoint.X = e.X;
@@ -107,6 +100,16 @@ namespace Pictionary.UserControls
 
         private void clearBTN_Click(object sender, EventArgs e)
         {
+            if (parentForm._connection.isActiveClient == true)
+            { 
+                clearImage();
+                parentForm._connection.SendString("6|");
+            }
+        }
+
+        public void clearImage()
+        {
+            pixelPainted.Clear();
             g.Clear(Color.White);
         }
 
@@ -121,15 +124,6 @@ namespace Pictionary.UserControls
                 e.Handled = true;
             }
         }
-        /*
-        private void submitImageBTN_Click(object sender, EventArgs e)
-        {
-            ((MainForm)this.Parent).SendImage(new Bitmap(792, 544, g));
-        }*/
         
-        private void askWordBTN_Click(object sender, EventArgs e)
-        {
-            parentForm._connection.SendString("4|");
-        }
     }
 }

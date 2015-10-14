@@ -10,10 +10,6 @@ namespace Server
 {
     class JsonConverter
     {
-        public static string GetChatInJson(AppGlobal _global)
-        {
-            return JsonConvert.SerializeObject(_global.GetChat());
-        }
 
         public static List<string> SetWordList()
         {

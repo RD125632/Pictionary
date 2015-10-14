@@ -73,6 +73,16 @@ namespace Pictionary.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap RoPaxman_We_have_a_winner {
+            get {
+                object obj = ResourceManager.GetObject("RoPaxman_We_have_a_winner", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap you_can_draw_but_you_will_never_draw_like_this_379470 {
             get {
                 object obj = ResourceManager.GetObject("you_can_draw_but_you_will_never_draw_like_this_379470", resourceCulture);

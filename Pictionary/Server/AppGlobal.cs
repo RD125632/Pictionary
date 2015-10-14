@@ -15,8 +15,8 @@ namespace Server
 
         private List<Client> clients;
         private List<string> wordList;
-        private List<Tuple<string, string>> chatMessages;
-        public List<ImagePoint> pixelPoints; 
+        public List<ImagePoint> pixelPoints;
+        public string supersecretword;
 
         //Create's static instance of AppGlobal
         public static AppGlobal Instance
@@ -28,8 +28,8 @@ namespace Server
         {
             clients = new List<Client>();
             wordList = JsonConverter.SetWordList();
-            chatMessages = new List<Tuple<string, string>>();
             pixelPoints = new List<ImagePoint>();
+            supersecretword = "";
         }
 
         // :::Used::: Used to convert a wordlist to JSON
@@ -43,17 +43,6 @@ namespace Server
             Random rnd = new Random();
             int randomIndex = rnd.Next(0, wordList.Count - 1);
             return wordList.ElementAt(randomIndex);
-        }
-
-        public List<Tuple<string, string>> GetChat()
-        {
-            return chatMessages;
-        }
-
-
-        public void AddChatMessage(string name, string message)
-        {
-            chatMessages.Add(new Tuple<string, string>(name, message));
         }
 
         public List<Client> GetClients()
