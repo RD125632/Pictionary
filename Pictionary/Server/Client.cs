@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
@@ -73,6 +74,16 @@ namespace Server
                                 {
                                     sendString("4|" + _global.GetWord() + "|");
                                     isActive = true;
+                                }
+
+                                break;
+                            case "9":   //ImagePoints
+                                _global.pixelPoints.Add(JsonConvert.DeserializeObject<ImagePoint>(response_parts[1]));
+
+                                foreach (Client c in _global.GetClients())
+                                {
+                                    //c.sendString("9|" + response_parts[1] + 
+                                    c.sendString("9|" + JsonConvert.SerializeObject(_global.pixelPoints) + "|");
                                 }
 
                                 break;

@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace Pictionary
 {
@@ -41,7 +42,7 @@ namespace Pictionary
 
         public void repopulateChat()
         {
-            drawUC2.newChat(this);
+            drawUC2.newChat();
         }
        
         private void MainForm_Load(object sender, EventArgs e)
@@ -78,9 +79,10 @@ namespace Pictionary
             drawUC2.setWord(word);
         }
 
-        public void setImage(byte[] bytesArray)
+        public void setImage(List<ImagePoint> points)
         {
-            drawUC2.setImage(bytesArray);
+            drawUC2.pixelPainted = points;
+            drawUC2.setImage();
         }
 
         public void setConnectLBL()
@@ -88,17 +90,15 @@ namespace Pictionary
             login2.setConnectLBL();
         }
 
-        public void SendImage(Bitmap bmp)
+        public void SendImage(ImagePoint pixelPoints )
         {
-            byte[] byteArray = new byte[0];
-            using (MemoryStream stream = new MemoryStream())
-            {
-                bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
-                stream.Close();
+            string jsonPointObject = JsonConvert.SerializeObject(pixelPoints);
+            _connection.SendString("9|" + jsonPointObject + "|");
+        }
 
-                byteArray = stream.ToArray();
-            }
-            _connection.SendImage("0|", byteArray, "|");
+        public void addToImage(ImagePoint point)
+        {
+           drawUC2.pixelPainted.Add(point); 
         }
     }
 }

@@ -12,12 +12,14 @@ namespace Pictionary.UserControls
         private Graphics g;
         private bool isDrawing = false;
         private Point lastPoint = new Point(-1, -1);
-        private List<Tuple<Point, Point>> pixelPainted;
+        public List<ImagePoint> pixelPainted;
+        private MainForm parentForm;
 
-        public DrawUC()
+        public DrawUC(MainForm parentForm)
         {
             InitializeComponent();
-            pixelPainted = new List<Tuple<Point, Point>>();
+            this.parentForm = parentForm;
+            pixelPainted = new List<ImagePoint>();
         }
 
         public void setWord(string word)
@@ -25,7 +27,7 @@ namespace Pictionary.UserControls
             drawLabel.Text = word;
         }
 
-        public void newChat(MainForm parentForm)
+        public void newChat()
         {
             int difference = parentForm.chatMessagesRecieved.Count - parentForm.chatMessagesLocal.Count;
 
@@ -40,11 +42,14 @@ namespace Pictionary.UserControls
             parentForm.chatMessagesLocal = parentForm.chatMessagesRecieved;
         }
 
-        public void setImage(byte[] bytesArray)
+        public void setImage()
         {
-
+            foreach (ImagePoint point in pixelPainted)
+            {
+                g.DrawLine(myPen, point.p1, point.p2);
+            }
         }
-
+        
 
         private void colorChooser_Click(object sender, EventArgs e)
         {
@@ -67,7 +72,7 @@ namespace Pictionary.UserControls
             g = this.paintPanel.CreateGraphics();
             g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
         }
-
+        
         private void paintPanel_MouseUp(object sender, MouseEventArgs e)
         {
             isDrawing = false;
@@ -90,7 +95,9 @@ namespace Pictionary.UserControls
         {
             if(isDrawing == true)
             {
-                pixelPainted.Add(new Tuple<Point,Point>(new Point(lastPoint.X, lastPoint.Y), new Point(e.X, e.Y)));
+                ImagePoint newPoint = new ImagePoint(new Point(lastPoint.X, lastPoint.Y), new Point(e.X, e.Y), myPen.Color);
+                pixelPainted.Add(newPoint);
+                parentForm.SendImage(newPoint);
                 g.DrawLine(myPen, lastPoint.X, lastPoint.Y, e.X, e.Y);
             }
 
@@ -107,7 +114,6 @@ namespace Pictionary.UserControls
         {
             if (e.KeyChar == (char)Keys.Enter)
             {
-                MainForm parentForm = (MainForm)this.Parent;
                 parentForm._connection.SendString("2|" + sendText.Text + "|");
 
                 //Done
@@ -115,15 +121,15 @@ namespace Pictionary.UserControls
                 e.Handled = true;
             }
         }
-
+        /*
         private void submitImageBTN_Click(object sender, EventArgs e)
         {
             ((MainForm)this.Parent).SendImage(new Bitmap(792, 544, g));
-        }
-
+        }*/
+        
         private void askWordBTN_Click(object sender, EventArgs e)
         {
-            ((MainForm)this.Parent)._connection.SendString("4|");
+            parentForm._connection.SendString("4|");
         }
     }
 }

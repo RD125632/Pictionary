@@ -81,7 +81,7 @@ namespace Pictionary
 
                 if (bytesFrom[0] == 48)
                 {
-                    if (chunks < 27)
+                    /*if (chunks < 27)
                     {
                         Buffer.BlockCopy(bytesFrom, 2, newImage, (chunks * 65533), ((chunks * 65533) < newImage.Length) ? 65533 : (newImage.Length - ((chunks - 1) * 65533)));
                         chunks++;
@@ -93,7 +93,7 @@ namespace Pictionary
                             activeForm.setImage(newImage);
                         });
                         chunks = 0;
-                    }
+                    }*/
                 }
                 else
                 {
@@ -118,7 +118,15 @@ namespace Pictionary
                                    activeForm.setWord(response_parts[1]);
                                });
                             break;
-                            
+                            case "9": //Receive Image Point
+                                isActiveClient = true;
+
+                                activeForm.Invoke((MethodInvoker)delegate ()
+                                {
+                                    //activeForm.addToImage(JsonConvert.DeserializeObject<ImagePoint>(response_parts[1]));
+                                    activeForm.setImage(JsonConvert.DeserializeObject<List<ImagePoint>>(response_parts[1]));
+                                });
+                                break;
                         }
                     }
                 }

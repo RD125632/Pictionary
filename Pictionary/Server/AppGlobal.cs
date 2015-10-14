@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Server;
 
 namespace Server
 {
@@ -15,6 +16,7 @@ namespace Server
         private List<Client> clients;
         private List<string> wordList;
         private List<Tuple<string, string>> chatMessages;
+        public List<ImagePoint> pixelPoints; 
 
         //Create's static instance of AppGlobal
         public static AppGlobal Instance
@@ -27,9 +29,10 @@ namespace Server
             clients = new List<Client>();
             wordList = JsonConverter.SetWordList();
             chatMessages = new List<Tuple<string, string>>();
+            pixelPoints = new List<ImagePoint>();
         }
 
-        // :::LEGACY::: Used to convert a wordlist to JSON
+        // :::Used::: Used to convert a wordlist to JSON
         /*private void fullWordList()
         {
             File.WriteAllText(Environment.CurrentDirectory + @"..\..\..\Resource\WordList.json", JsonConvert.SerializeObject(File.ReadAllText(Environment.CurrentDirectory + @"..\..\..\Resource\words.txt").Split(',').ToList()));
@@ -46,6 +49,7 @@ namespace Server
         {
             return chatMessages;
         }
+
 
         public void AddChatMessage(string name, string message)
         {
