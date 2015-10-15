@@ -36,7 +36,7 @@ namespace Pictionary
 
         public void setAnswer()
         {
-            new WinnerForm((MainForm)this.Parent, chatMessagesLocal.Last()).Show();
+            new WinnerForm(chatMessagesLocal.Last()).Show();
             repopulateChat();
         }
 
@@ -66,6 +66,11 @@ namespace Pictionary
         private void closeBTN_Click(object sender, EventArgs e)
         {
             Application.Exit();
+        }
+
+        public void resetGame()
+        {
+            _connection.SendString("10|");
         }
 
         public void setDrawUC()

@@ -111,6 +111,8 @@ namespace Pictionary.UserControls
         {
             pixelPainted.Clear();
             g.Clear(Color.White);
+            setWord("");
+
         }
 
         private void sendText_KeyPress(object sender, KeyPressEventArgs e)

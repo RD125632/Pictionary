@@ -126,8 +126,8 @@ namespace Pictionary
                             {
                                 isActiveClient = false;
                                 activeForm.clearImage();
-                                
                             });
+
                             break;
                     }
                 }

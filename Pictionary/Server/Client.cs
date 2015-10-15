@@ -15,10 +15,11 @@ namespace Server
         NetworkStream networkStream;
         private readonly AppGlobal _global;
         private string name;
-       
+        private bool isActive;
 
         public Client(TcpClient socket)
         {
+            isActive = false;
             client = socket;
             networkStream = client.GetStream();
             _global = AppGlobal.Instance;
@@ -36,19 +37,6 @@ namespace Server
                 byte[] bytesFrom = new byte[(int)client.ReceiveBufferSize];
                 networkStream.Read(bytesFrom, 0, (int)client.ReceiveBufferSize);
 
-                if (bytesFrom[0] == 48)
-                {
-                    foreach (Client c in _global.GetClients())
-                    {
-                        if (!c.Equals(this))
-                        {
-                            networkStream.Write(bytesFrom, 0, bytesFrom.Length);
-                            networkStream.Flush();
-                        }
-                    }
-                }
-                else
-                {
                     String response = Encoding.ASCII.GetString(bytesFrom);
                     String[] response_parts = response.Split('|');
                     if (response_parts.Length > 0)
@@ -66,7 +54,7 @@ namespace Server
                                 broadcastString("2|" + "Server" + "|" + response_parts[1] + " joined" + "|");
                                 break;
                             case "2":   //Recieve Chat
-                                if (response_parts[1].ToLower() == _global.supersecretword)
+                                if (response_parts[1].ToLower() == _global.supersecretword.ToLower() && this.isActive == false)
                                 {
                                     broadcastString("3|" + name + "|" + response_parts[1] + "|");
                                 }
@@ -87,11 +75,25 @@ namespace Server
                                 break;
                             case "10":   //Reset Game
                                 broadcastString("10|");
-                                Thread.Sleep(500);
-                                askWord();
+                                isActive = false;
+                                int activeCount = 0;
+
+                                foreach (Client c in _global.GetClients())
+                                {
+                                    if (c.isActive == true)
+                                    {
+                                        activeCount++;
+                                    }
+                                }
+
+                                if(activeCount == 0)
+                                {
+                                    askWord();
+                                }
+
                                 break;
                         }
-                    }
+                    
                 }
             }
         }
@@ -101,6 +103,7 @@ namespace Server
             int index = new Random().Next(_global.GetClients().Count);
             _global.supersecretword = _global.GetWord();
             _global.GetClients().ElementAt(index).sendString("4|" + _global.supersecretword + "|");
+            _global.GetClients().ElementAt(index).isActive = true;
         }
 
         public void broadcastString(string s)

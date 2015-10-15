@@ -23,7 +23,7 @@ namespace Pictionary.UserControls
 
         private void nxtWord_Click(object sender, EventArgs e)
         {
-            winnerForm.mainForm._connection.SendString("10|");
+            winnerForm.mainForm.resetGame();
             winnerForm.Dispose();
         }
     }

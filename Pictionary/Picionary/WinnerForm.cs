@@ -8,9 +8,9 @@ namespace Pictionary
         public MainForm mainForm;
         public Tuple<string, string> message;
 
-        public WinnerForm(MainForm mainForm, Tuple<string, string> chat)
+        public WinnerForm(Tuple<string, string> chat)
         {
-            this.mainForm = mainForm;
+            mainForm = (MainForm)Application.OpenForms["MainForm"];
             this.message = chat;
             InitializeComponent();
         }
